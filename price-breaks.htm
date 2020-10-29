@@ -154,9 +154,24 @@
 					i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
 					(decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
 			}
+
+function init() {			
+var input = document.getElementById("newMax");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    clickApply();
+  }
+});			
+}
 		</script>
     </head>
-    <body>
+    <body onload="init()">
         <table id="tbl" style="background-color:silver" border="0">
 			<tr>
 				<td colspan="6">Price Rule Category: <input size="24" value="TIR"></td>	

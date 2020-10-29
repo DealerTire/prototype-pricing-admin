@@ -126,10 +126,10 @@
 				var cell5 = row.insertCell(5);
 				var cell6 = row.insertCell(6);
 				var cell7 = row.insertCell(7);
-				cell0.innerHTML = "$ <input onblur='fixCents(this)' name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />";
+				cell0.innerHTML = "$ <input onfocus='select()' onblur='fixCents(this)' name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />";
 			
 				cell1.innerHTML = "&nbsp; to &nbsp;"
-				cell2.innerHTML = "$ <input onblur='fixCents(this)' name='HighPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />"
+				cell2.innerHTML = "$ <input onfocus='this.select()' onblur='fixCents(this)' name='HighPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />"
 				cell3.innerHTML = "&nbsp;  &nbsp;"
 				cell4.innerHTML = "<select name='MarginType'><option value='gross'>%GP</option><option value='markup' selected='true'>Markup</option><option value='flat'>Flat</option></select>";
 				cell5.innerHTML = "&nbsp;  &nbsp;"
