@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- head definitions go here -->
+		<style>
+			.likeLabel {
+				background-color:#D0D1D3;
+			}
+		</style>
+		<script>
+			var lowPrice = [0];
+			var highPrice = ["no limit"];
+			var savedValue=-1;
+			
+			function clickCancel() {
+				document.getElementById('enterMax').style.display = 'none';
+				document.getElementById("newMax").value = "";
+			}
+			
+			function clickApply() {
+				var newMax = Number(document.getElementById("newMax").value);
+				var newMin = Number(document.getElementById("newMax").value)+0.01;
+				
+				if (Number(newMax)<0) {
+					alert("Negative numbers are not allowed.");
+					document.getElementById("newMax").value = "";
+					return;
+				}
+				
+				for (i = 0; i < lowPrice.length; i++) {
+					if(Number(lowPrice[i])==newMin) {
+						alert("There is already a breakpoint at that amount.");
+						document.getElementById("newMax").value = "";
+						return;
+					}
+				}
+				
+				var idxInsertHere = 1;
+				var nextLowFoundForNewHigh = "no limit";
+				
+				if (lowPrice.length==1) {
+					lowPrice.push(newMin);
+					highPrice.unshift(newMax);
+				}
+				else {
+					var i;
+					for (i = 0; i < lowPrice.length; i++) {
+						if ((newMin > Number(lowPrice[i])) 
+							  && (newMax < Number(highPrice[i]))
+						) {
+							idxInsertHere = i+1;
+							nextLowFoundForNewHigh = highPrice[i];
+							break;
+						}
+
+					}
+					if ((i==lowPrice.length) && (idxInsertHere==1)) {
+						idxInsertHere = i;
+					}
+					
+					lowPrice.splice(idxInsertHere, 0, newMin);
+					highPrice.splice(idxInsertHere-1, 0, newMax);
+				}
+				// alert("i=" + i + ", lowPrice.length=" + lowPrice.length + "idxInsertHere=" + idxInsertHere + ", nextLowFoundForNewHigh=" + nextLowFoundForNewHigh + "\n\r" + ", lowPrice=" + lowPrice + ", highPrice=" + highPrice);
+				
+				var tbl = document.getElementById("tbl");
+				var row = tbl.insertRow(idxInsertHere+2);
+				var cell0 = row.insertCell(0);
+				var cell1 = row.insertCell(1);
+				var cell2 = row.insertCell(2);
+				var cell3 = row.insertCell(3);
+				var cell4 = row.insertCell(4);
+				var cell5 = row.insertCell(5);
+				var cell6 = row.insertCell(6);
+				var cell7 = row.insertCell(7);
+				if (newMax != "no limit") {
+					newMax = formatMoney(newMax, 2, ".", "");
+				}
+				cell0.innerHTML = "$ <input name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' onfocus='saveValue(this)' onblur='setHigh(this)' />";
+					tbl.rows[idxInsertHere+1].cells[2].innerHTML = "$ <input class='likeLabel' name='HighPrice' size='6' value='" +  newMax + "' disabled='true' />";
+				
+				if (nextLowFoundForNewHigh!= "no limit") {
+					nextLowFoundForNewHigh = formatMoney(nextLowFoundForNewHigh, 2, ".", "");
+				}
+				cell1.innerHTML = "&nbsp; to &nbsp;",
+				cell2.innerHTML = "$ <input class='likeLabel' name='HighPrice' size='6' value='" + nextLowFoundForNewHigh + "' disabled='true' />"
+				cell3.innerHTML = "&nbsp;  &nbsp;"
+				cell4.innerHTML = "<select><option value='gross'>%GP</option><option value='markup'>Markup</option><option value='flat'>Flat</option></select>";
+				cell5.innerHTML = "&nbsp;  &nbsp;"
+				cell6.innerHTML = "$ <input name='Amount0' size='6' value='15' />";
+				cell7.innerHTML = "<td> <input type='button' value='Delete' onclick='deleteRow(this)' /></td>";
+				
+				document.getElementById('enterMax').style.display = 'none';
+				document.getElementById("newMax").value = "";
+			}
+			
+			function saveValue(myInput) {
+				savedValue = myInput.value;
+			}
+			
+			function setHigh(myInput) {
+			
+				for (i = 0; i < document.getElementsByName("HighPrice").length; i++) {
+					if (Number(myInput.value) == Number(document.getElementsByName("LowPrice")[i].value)) {
+						var curMax;
+						if (document.getElementsByName("HighPrice")[i].value == "no limit") {
+							curMax = 99999;
+						}
+						else {
+							curMax = document.getElementsByName("HighPrice")[i].value;
+						}
+						if (Number(myInput.value) < Number(curMax)-0.01) { // don't let them set it to higher than high.
+							document.getElementsByName("HighPrice")[i-1].value = formatMoney(myInput.value-0.01, 2, ".", "");
+							lowPrice[i] = myInput.value;
+							highPrice[i-1] = myInput.value-.01;
+							myInput.value = formatMoney(myInput.value, 2, ".", "");
+						}
+						else {
+							//alert("error - you cannot do that.")
+							myInput.value = savedValue;
+							break;
+						}
+					}
+				}
+			}
+			
+			function deleteRow(obj) {
+				// alert("Deleting a row will merge two rows together. Is it obvious which rows would be merged?");
+				// 1) Set high value for previous row to high value for current row. 2) Delete current row. 
+
+				var tbl = document.getElementById("tbl");
+				var idx = obj.parentElement.parentElement.rowIndex;
+				document.getElementsByName("HighPrice")[idx-3].value = 
+					document.getElementsByName("HighPrice")[idx-2].value;
+
+//alert('low:' + lowPrice + ', hi:' + highPrice)
+				highPrice[idx-3] = highPrice[idx-2];
+				highPrice.splice(idx-2, 1);
+				lowPrice.splice(idx-2, 1);
+				tbl.deleteRow(idx);
+//alert('low:' + lowPrice + ', hi:' + highPrice)				
+			}
+						
+			function formatMoney(number, decPlaces, decSep, thouSep) {
+				decPlaces = isNaN(decPlaces = Math.abs(decPlaces)) ? 2 : decPlaces,
+				decSep = typeof decSep === "undefined" ? "." : decSep;
+				thouSep = typeof thouSep === "undefined" ? "," : thouSep;
+				var sign = number < 0 ? "-" : "";
+				var i = String(parseInt(number = Math.abs(Number(number) || 0).toFixed(decPlaces)));
+				var j = (j = i.length) > 3 ? j % 3 : 0;
+
+				return sign +
+					(j ? i.substr(0, j) + thouSep : "") +
+					i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
+					(decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+			}
+
+function init() {			
+var input = document.getElementById("newMax");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    clickApply();
+  }
+});			
+}
+		</script>
+    </head>
+    <body onload="init()">
+        <table id="tbl" style="background-color:silver" border="0">
+			<tr>
+				<td colspan="6">Price Rule Category: <input size="24" value="TIR"></td>	
+				<td colspan="2"><input type='button' value='Save rule(s)' onclick="alert('Rules saved.')" /></td>
+			</tr>
+			<tr>
+				<td>Min Price</td>
+				<td>&nbsp;  &nbsp;</td>
+				<td>Max Price</td>
+				<td>&nbsp;  &nbsp;</td>
+				<td>Margin Type</td>
+				<td>&nbsp;  &nbsp;</td>
+				<td>Amount</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>$ <input class="likeLabel" name="LowPrice" size="6" value="0.00" disabled="true" onfocus="saveValue(this)" onblur='setHigh(this)' /></td>
+				<td>&nbsp; to &nbsp;</td>
+				<td>$ <input class="likeLabel"  name="HighPrice" size="6" value="no limit" disabled="true" /></td>
+				<td>&nbsp;  &nbsp;</td>
+				<td><select><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat">Flat</option></select></td>
+				<td>&nbsp;  &nbsp;</td>
+				<td>$ <input name="Amount0" size="6" value="15" /></td>
+				<td> </td>
+			</tr>
+			<tr>
+				<td colspan="8" onclick="document.getElementById('enterMax').style.display = '';document.getElementById('newMax').focus()">Add new range + </td>	
+			</tr>
+			<tr style="display:none" id="enterMax">
+				<td colspan="8">&nbsp;&nbsp;&nbsp; Enter Max Price for new range: <input size="6" id="newMax" /> 
+					<input type="button" value="Apply" onclick="clickApply()" />
+					<input type="button" value="Cancel" onclick="clickCancel()" />
+				</td>	
+			</tr>			
+		</table>	
+		<br/>
+		<br/>
+		<input type="button" onclick="location.reload()" value="Click to start over." />
+
+    </body>
+</html>
