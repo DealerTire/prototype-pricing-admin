@@ -2,8 +2,34 @@
 <html>
     <head>
 		<style>
+
+		body {
+			font-family:Verdana,Arial,Helvetica;
+			font-size:12px;	
+
+		}
+		
+		select {
+		height:20px
+		}
+		
+		input[type=text] {
+			font-size:12px;
+		}
+		
+		.mainTable {
+			background-color:#8A8A8A;
+			color:#DDDAD8;
+			font-family:Verdana,Arial,Helvetica;
+			font-size:12px;
+			border-collapse:collapse;
+			border:4px solid #8A8A8A;
+		}
+		
 		.PhantomRow {
-			background-color:#FADBD8;
+			background-color:#243246;
+			color:#DDDAD8;
+			
 		}
 		.BaseRuleOnly {
 			visibility:hidden;
@@ -54,19 +80,22 @@
 					marginAmount.push(document.getElementsByName("MarginAmount")[i].value);					
 					
 				}
+				var bMinGreaterThanMax = false;
 				var bOverlap = false;
 				var bSameMinMax = false;
 				var bLowCannotBeNoLimit = false;
 				var NoLimitCounter = 0;
+
 				for (var i = 0; i < lowPrice.length; i++) {
 					for (var j = 0; j < lowPrice.length; j++) {
+						
 						if (i!=j) {
-							if ((Number(lowPrice[i]) >= Number(lowPrice[j])) && (Number(lowPrice[i]) <= Number(highPrice[j]))) {
+							if ((Number(lowPrice[i]) >= Number(lowPrice[j])) && (Number(lowPrice[i]) <= Number(proxyHighPrice(highPrice[j])))) {
 								bOverlap=true;
 							}
 						}
 					}
-					if (lowPrice[i] == highPrice[i]) {
+					if (lowPrice[i] == proxyHighPrice(highPrice[i])) {
 						bSameMinMax = true;
 					}
 					if (lowPrice[i]=="no limit") {
@@ -75,8 +104,14 @@
 					if (highPrice[i]=="no limit") {
 						NoLimitCounter++;
 					}
+					else {
+						if (Number(lowPrice[i]) > Number(proxyHighPrice(highPrice[i]))) {
+							bMinGreaterThanMax = true;
+						}					
+					}
 				}
 				var sError = ""
+				if (bMinGreaterThanMax) { sError = sError + "Minimum must be lower than maximum.\r\n"; }
 				if (bOverlap) { sError = sError + "  * You cannot have overlapping rows.\r\n" }
 				if (bSameMinMax) { sError = sError + "  * Minimum and maximum price cannot be the same.\r\n" }
 				if (bLowCannotBeNoLimit) { sError = sError + "  * Minimum price cannot be 'no limit'.\r\n" }
@@ -180,13 +215,13 @@
 				var cell5 = row.insertCell(5);
 				var cell6 = row.insertCell(6);
 				var cell7 = row.insertCell(7);
-				cell0.innerHTML = "$ <input onfocus='select()' onblur='fixCents(this)' name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />";
+				cell0.innerHTML = "$ <input type='text' onfocus='select()' onblur='fixCents(this)' name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />";
 			
 				if (newMax != 'no limit') {
 					newMax = formatMoney(newMax, 2, ".", "");
 				}
 				cell1.innerHTML = "&nbsp; to &nbsp;"
-				cell2.innerHTML = "$ <input onfocus='this.select()' onblur='fixCents(this)' name='HighPrice' size='6' value='" + newMax + "' />"
+				cell2.innerHTML = "$ <input type='text' onfocus='this.select()' onblur='fixCents(this)' name='HighPrice' size='6' value='" + newMax + "' />"
 				cell3.innerHTML = "&nbsp;  &nbsp;"
 				var sTemp = ""
 				sTemp = "<select name='MarginType'><option value='gross' "
@@ -198,7 +233,7 @@
 					sTemp = sTemp + ">Flat</option></select>";
 				cell4.innerHTML = sTemp;
 				cell5.innerHTML = "&nbsp;  &nbsp;"
-				cell6.innerHTML = "$ <input name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
+				cell6.innerHTML = "$ <input type='text' name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
 				cell7.innerHTML = "<input type='button' value='Delete' onclick='deleteRow(this.parentElement.parentElement.rowIndex)' />";
 				
 				var hpobj = document.getElementsByName("HighPrice");
@@ -310,6 +345,15 @@
 					(decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
 			}
 			
+			function proxyHighPrice(x) {
+				if (x=='no limit') {
+					return 999999;
+				}
+				else {
+					return x;
+				}
+			}
+			
 			var bShowingImplied=0;
 			function showImplied(btn) {
 		
@@ -327,9 +371,9 @@
 		</script>
     </head>
     <body onload="initPage()">
-        <table id="tbl" style="background-color:#a2b9bc" border="0">
+        <table id="tbl" class="mainTable" border="0">
 			<tr>
-				<td colspan="8">Price rule category: <input size="24" value="TIR" disabled="true" style='background-color:#D4E6F1;border-style:none'> <input type="button" value="Save rule(s)" onclick="saveRules()"></td>	
+				<td colspan="8">Price rule category: <input type='text' size="24" value="TIR" disabled="true" style='background-color:#DDDAD8;color:#243246;border-style:none'> <input type="button" value="Save rule(s)" onclick="saveRules()"></td>	
 			</tr>
 			<tr>
 				<td colspan="8">
@@ -356,7 +400,7 @@
 				<td>&nbsp;</td>
 				<td><select name="baseRule"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ <input name="baseAmount" size="6" value="15" /></td>
+				<td>$ <input type='text' name="baseAmount" size="6" value="15" /></td>
 				<td> <input type="button" value="Delete" onclick="alert('This will delete the rule for TIR.')" /></td>
 			</tr>
 		
@@ -364,11 +408,11 @@
 		<br/>
 		
 
-		<table style="color:gray" class="BaseRuleOnly">
+		<table style="color:#243246;" class="BaseRuleOnly">
 			<tr>
 				<td colspan="8">
 				To set continuous rows in cost matrix pricing, set the Min Price for<br />
-				the next row 1 cent more than the Max Price of the previous row. <br/><br/>Example below:
+				the next row one (1) cent more than the Max Price of the previous row. <br/><br/>Example below:
 				</td>
 			</tr>
 			<tr>
@@ -382,23 +426,23 @@
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td> $ <input value="100.00" disabled="true" size="6">&nbsp;</td>
+				<td> $ <input type='text' value="100.00" disabled="true" size="6">&nbsp;</td>
 				<td>&nbsp;</td>
-				<td> $ <input value="199.99" disabled="true" size="6"</td>
+				<td> $ <input type='text' value="199.99" disabled="true" size="6"</td>
 				<td>&nbsp;</td>
 				<td><select disabled="true" name="baseRule"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ <input name="baseAmount" disabled="true" size="6" value="25" /></td>
+				<td>$ <input type='text' name="baseAmount" disabled="true" size="6" value="25" /></td>
 				<td> </td>
 			</tr>
 			<tr>
-				<td> $ <input value="200.00" disabled="true" size="6">&nbsp;</td>
+				<td> $ <input type='text' value="200.00" disabled="true" size="6">&nbsp;</td>
 				<td>&nbsp;</td>
-				<td> $ <input value="299.99" disabled="true" size="6"</td>
+				<td> $ <input type='text' value="299.99" disabled="true" size="6"</td>
 				<td>&nbsp;</td>
 				<td><select disabled="true"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ <input disabled="true" size="6" value="15" /></td>
+				<td>$ <input type='text' disabled="true" size="6" value="15" /></td>
 				<td> </td>
 			</tr>			
 		</table>
