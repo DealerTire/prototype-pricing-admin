@@ -40,6 +40,10 @@
 		.errorRow {
 			visibility:hidden;
 		}
+		
+		.symbol {
+			text-align: right;
+		}
 		</style>
         <!-- head definitions go here -->
 		<script>
@@ -50,6 +54,7 @@
 			var highPrice = [];
 			var marginType = [];
 			var marginAmount = [];
+			var idCounter = 0;
 
 			function hidesrp() {
 				var all = document.getElementsByClassName('PhantomRow');
@@ -204,6 +209,15 @@
 			
 			}
 			
+			function setSymbol(obj, idx) {
+				if ((obj.value == "gross") || (obj.value == "markup")) {
+					document.getElementById("sym" + idx).innerHTML = "%";
+				}
+				else {
+					document.getElementById("sym" + idx).innerHTML = "$";
+				}
+			}
+			
 			function insertNewRow(idxInsertHere, newMin, newMax, newMarginType, newMarginAmount) {
 				var tbl = document.getElementById("tbl");
 				var row = tbl.insertRow(idxInsertHere+3);
@@ -215,6 +229,8 @@
 				var cell5 = row.insertCell(5);
 				var cell6 = row.insertCell(6);
 				var cell7 = row.insertCell(7);
+				idCounter = idCounter + 1;
+				
 				cell0.innerHTML = "$ <input type='text' onfocus='select()' onblur='fixCents(this)' name='LowPrice' size='6' value='" + formatMoney(newMin, 2, ".", "") + "' />";
 			
 				if (newMax != 'no limit') {
@@ -224,16 +240,20 @@
 				cell2.innerHTML = "$ <input type='text' onfocus='this.select()' onblur='fixCents(this)' name='HighPrice' size='6' value='" + newMax + "' />"
 				cell3.innerHTML = "&nbsp;  &nbsp;"
 				var sTemp = ""
-				sTemp = "<select name='MarginType'><option value='gross' "
-					if (newMarginType=="gross") { sTemp = sTemp + " selected='true'" }
-					sTemp = sTemp + ">%GP</option><option value='markup' "
-					if (newMarginType=="markup") { sTemp = sTemp + " selected='true'" }
+				var sTempSymbol = "";
+				
+				sTemp = "<select id='sel" + idCounter + "' name='MarginType' onchange='setSymbol(this, " + idCounter + ")'><option value='gross' "
+					if (newMarginType=="gross") { sTemp = sTemp + " selected='true'"; sTempSymbol = "%"; }
+					sTemp = sTemp + ">Gross</option><option value='markup' "
+					if (newMarginType=="markup") { sTemp = sTemp + " selected='true'"; sTempSymbol = "%"; }
 					sTemp = sTemp + ">Markup</option><option value='flat'"
-					if (newMarginType=="flat") { sTemp = sTemp + " selected='true'" }
+					if (newMarginType=="flat") { sTemp = sTemp + " selected='true'"; sTempSymbol = "$"; }
 					sTemp = sTemp + ">Flat</option></select>";
 				cell4.innerHTML = sTemp;
 				cell5.innerHTML = "&nbsp;  &nbsp;"
-				cell6.innerHTML = "$ or % <input type='text' name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
+				cell6.innerHTML = "<span id='sym" + idCounter + "' name='adjSymbol'>" + sTempSymbol + "</span><input type='text' name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
+				cell6.className = "symbol";
+				
 				cell7.innerHTML = "<input type='button' value='Delete' onclick='deleteRow(this.parentElement.parentElement.rowIndex)' />";
 				
 				var hpobj = document.getElementsByName("HighPrice");
@@ -387,19 +407,19 @@
 				<td>&nbsp;  &nbsp;</td>
 				<td class="BaseRuleOnly">Max Price</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Margin Type</td>
+				<td>Adjustment Type</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Amount / Rate</td>
-				<td>&nbsp;</td>
+				<td>Adjustment</td>
+				<td>&nbsp;</td>	
 			</tr>
 			<tr class="BaseRow">
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td><select name="baseRule"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
+				<td><select name="baseRule"><option value="gross">Gross</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ or % <input type='text' name="baseAmount" size="6" value="15" /></td>
+				<td><span name="adjSymbolForBase">$</span><input type='text' name="baseAmount" size="6" value="15" /></td>
 				<td> <input type="button" value="Delete" onclick="alert('This will delete the rule for TIR.')" /></td>
 			</tr>
 		
@@ -424,9 +444,9 @@
 				<td>&nbsp;  &nbsp;</td>
 				<td>Max Price</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Margin Type</td>
+				<td>Adjustment Type</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Amount / Rate</td>
+				<td>Adjustment</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
@@ -434,9 +454,9 @@
 				<td>&nbsp;</td>
 				<td> $ <input type='text' value="199.99" disabled="true" size="6"</td>
 				<td>&nbsp;</td>
-				<td><select disabled="true" name="baseRule"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
+				<td><select disabled="true" name="baseRule"><option value="gross">Gross</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ <input type='text' name="baseAmount" disabled="true" size="6" value="25" /></td>
+				<td><span name="adjSymbolForBase">$<input type='text' name="baseAmount" disabled="true" size="6" value="25" /></td>
 				<td> </td>
 			</tr>
 			<tr>
@@ -444,9 +464,9 @@
 				<td>&nbsp;</td>
 				<td> $ <input type='text' value="299.99" disabled="true" size="6"</td>
 				<td>&nbsp;</td>
-				<td><select disabled="true"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
+				<td><select disabled="true"><option value="gross">Gross</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ <input type='text' disabled="true" size="6" value="15" /></td>
+				<td>$<input type='text' disabled="true" size="6" value="15" /></td>
 				<td> </td>
 			</tr>
 <tr><td colspan="8">&nbsp;</td></tr>			
