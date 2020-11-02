@@ -175,7 +175,7 @@
 				for (var i = 0; i < all.length; i++) {
 					all[i].style.visibility = 'visible';
 				}
-				//document.getElementById("btnImplied").style.visibility = "visible";
+				document.getElementById("btnImplied").style.visibility = "visible";
 				
 				var tbl = document.getElementById("tbl");
 
@@ -233,7 +233,7 @@
 					sTemp = sTemp + ">Flat</option></select>";
 				cell4.innerHTML = sTemp;
 				cell5.innerHTML = "&nbsp;  &nbsp;"
-				cell6.innerHTML = "$ or % <input type='text' name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
+				cell6.innerHTML = "$ <input type='text' name='MarginAmount' size='6' value='" + newMarginAmount +"' />";
 				cell7.innerHTML = "<input type='button' value='Delete' onclick='deleteRow(this.parentElement.parentElement.rowIndex)' />";
 				
 				var hpobj = document.getElementsByName("HighPrice");
@@ -379,6 +379,7 @@
 				<td colspan="8">
 					Cost Matrix Pricing
 					<input type="button" value="Add rule" onclick="clickApply()"/>
+					&nbsp; &nbsp; &nbsp; <span id="btnImplied" style="visibility:hidden"> * Ranges with no rules use <i>Suggested Retail Price</i>.  <input type='hidden' value='Hide' onclick='hidesrp()' /></span>
 					<br/>&nbsp;
 				</td>	
 			</tr>			
@@ -389,7 +390,7 @@
 				<td>&nbsp;  &nbsp;</td>
 				<td>Margin Type</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Amount / Rate</td>
+				<td>Amount</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr class="BaseRow">
@@ -399,24 +400,19 @@
 				<td>&nbsp;</td>
 				<td><select name="baseRule"><option value="gross">%GP</option><option value="markup">Markup</option><option value="flat" selected="true">Flat</option></select></td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>$ or % <input type='text' name="baseAmount" size="6" value="15" /></td>
+				<td>$ <input type='text' name="baseAmount" size="6" value="15" /></td>
 				<td> <input type="button" value="Delete" onclick="alert('This will delete the rule for TIR.')" /></td>
 			</tr>
 		
 		</table>	
-		<br/><br/>
+		<br/>
 		
 
-		<table style="color:#243246;background-color:#DDDAD8;border-collapse:collapse;" class="BaseRuleOnly">
-			<tr ><td colspan="7" style="background-color:#8A8A8A;color:white">Additional Notes</td>
-			<td align="right" style="background-color:#8A8A8A;color:white"><input type="button" onclick="location.reload()" value="Click to start over." /></td>
-			</tr>
-			
+		<table style="color:#243246;" class="BaseRuleOnly">
 			<tr>
 				<td colspan="8">
 				To set continuous rows in cost matrix pricing, set the Min Price for<br />
-				the next row one (1) cent more than the Max Price of the previous row. <br/><br/>
-				<b>Example:</b>
+				the next row one (1) cent more than the Max Price of the previous row. <br/><br/>Example below:
 				</td>
 			</tr>
 			<tr>
@@ -426,7 +422,7 @@
 				<td>&nbsp;  &nbsp;</td>
 				<td>Margin Type</td>
 				<td>&nbsp;  &nbsp;</td>
-				<td>Amount / Rate</td>
+				<td>Amount</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
@@ -448,32 +444,10 @@
 				<td>&nbsp;  &nbsp;</td>
 				<td>$ <input type='text' disabled="true" size="6" value="15" /></td>
 				<td> </td>
-			</tr>
-<tr><td colspan="8">&nbsp;</td></tr>			
-<tr><td colspan="8">
-<u>Pricing Definitions/Examples</u><br/><br/>
-&nbsp;&nbsp;&nbsp;No rule defined for a price range uses the <b>suggested retail price</b>.<br/><br/>
-
-&nbsp;&nbsp;&nbsp;Applying a "flat" margin type means the amount added to the <b>list price</b>.<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>A flat $10 adjusts a $180 tire to $190.</i><br/><br/>
-
-&nbsp;&nbsp;&nbsp;Applying a "markup" margin type means the rate multplied by the <b>list price</b>.<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>A markup of 10% adjusts a $180 tire to $198.</i><br/><br/>
-
-&nbsp;&nbsp;&nbsp;Applying a "gross" margin type means the rate at which a "marked down" price equals the <b>list price</b>.<br/>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>A gross margin of 10% for a $180 tire means that the adjusted price is $200, i.e. 10% of 200 = $20.</i><br/><br/>
-
-<u>Price Override Warning</u><br/>
-<ul>
-<li>SKU rules take the highest precendence and will be used if a rule exists</li>
-<li>then, Model/Size rule</li>
-<li>then, Model rule</li>
-<li>then, Brand rule</li>
-<li>Rules defined at the <b>category</b> level (these rules) have the lowest precedence.</li>
-</ul>
-</td></tr>			
+			</tr>			
 		</table>
-		
+		<br/>
+		<input type="button" onclick="location.reload()" value="Click to start over." />
 		
     </body>
 </html>
